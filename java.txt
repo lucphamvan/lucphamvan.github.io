@@ -1,0 +1,24 @@
+    @Override
+    public List<User> getUserWithFilter(String name, Integer age) {
+        User queryUser = new User();
+        ExampleMatcher matcher = ExampleMatcher.matching();
+        if (name != null) {
+            queryUser.setName(name);
+            matcher = matcher.withIgnoreCase("name").withMatcher("name", ExampleMatcher.GenericPropertyMatcher::contains);
+        }
+        if (age != null) {
+            queryUser.setAge(age);
+        }
+        Example<User> example = Example.of(queryUser, matcher);
+        Pageable page = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "age"));
+        return userRepository.findAll(example, page).toList();
+    }
+
+
+
+
+
+    @Repository
+    public interface UserRepository extends JpaRepository<User, Integer>, QueryByExampleExecutor<User> {
+        User getUserByDescriptionStartingWithAndNameContainingIgnoreCase(String token, String name);
+    }
